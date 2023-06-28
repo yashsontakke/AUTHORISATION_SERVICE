@@ -18,6 +18,17 @@ class UserRepository {
       throw new Error('Failed to delete user.');
     }
   }
+  async getUserById(userId) {
+    try {
+      const user = await User.findByPk(userId, {
+        attributes: ['id', 'email'], // Specify the columns you want to retrieve
+      });
+  
+      return user;
+    } catch (error) {
+      throw new Error(`Failed to get user by id: ${error.message}`);
+    }
+  }
 }
 
 module.exports = UserRepository;
