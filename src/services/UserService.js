@@ -1,4 +1,7 @@
 const UserRepository = require('../repository/UserRepository');
+const jwt = require('jsonwebtoken');
+const {SECRET_KEY} = require("../config/serverConfig");
+const bcrypt = require('bcrypt');
 
 class UserService {
   constructor() {
@@ -26,6 +29,31 @@ class UserService {
       return deletedUserCount;
     } catch (error) {
       throw new Error('Failed to delete user.');
+    }
+  }
+  async  createToken(user) {
+    try {
+      const token = jwt.sign(user, SECRET_KEY);
+      return token;
+    } catch (error) {
+      throw new Error(`Failed to create token: ${error.message}`);
+    }
+  }
+  
+  async  verifyToken(token) {
+    try {
+      const decoded = jwt.verify(token, SECRET_KEY);
+      return decoded;
+    } catch (error) {
+      throw new Error(`Failed to verify token: ${error.message}`);
+    }
+  }
+  async comparePasswords(plainPassword, hashedPassword) {
+    try {
+      const match = bcrypt.compareSync(plainPassword, hashedPassword);
+      return match;
+    } catch (error) {
+      throw new Error(`Failed to compare passwords: ${error.message}`);
     }
   }
 }
