@@ -29,6 +29,16 @@ class UserRepository {
       throw new Error(`Failed to get user by id: ${error.message}`);
     }
   }
+  async getUserByEmail(userEmail) {
+    try {
+      const user = await User.findOne({
+        where:{email:userEmail}
+      });
+      return user;
+    } catch (error) {
+      throw new Error(`Failed to get user by emailId: ${error.message}`);
+    }
+  }
 }
 
 module.exports = UserRepository;
