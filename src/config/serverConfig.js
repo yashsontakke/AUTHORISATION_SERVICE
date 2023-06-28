@@ -4,5 +4,5 @@ dotenv.config();
 
 module.exports= {
     PORT : process.env.PORT,
-    PASS : process.env.PASS
+    SALT : process.env.SALT
 }
