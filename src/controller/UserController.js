@@ -39,6 +39,27 @@ class UserController {
             res.status(400).json({ error: error.message });
         }
     }
+    static isAuthenticated = async (req, res) => {
+        try {
+            const userService = new UserService();
+            const token = req.headers['x-access-token'];
+            const response = await userService.isAuthenticated(token);
+            return res.status(200).json({
+                success: true,
+                err: {},
+                data: response,
+                message: 'user is authenticated and token is valid'
+            });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                message: 'Something went wrong',
+                data: {},
+                success: false,
+                err: error
+            });
+        }
+    }
 
 }
 

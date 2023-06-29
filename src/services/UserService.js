@@ -1,6 +1,6 @@
 const UserRepository = require('../repository/UserRepository');
 const jwt = require('jsonwebtoken');
-const {SECRET_KEY} = require("../config/serverConfig");
+const { SECRET_KEY } = require("../config/serverConfig");
 const bcrypt = require('bcrypt');
 
 class UserService {
@@ -9,7 +9,7 @@ class UserService {
   }
 
   async createUser(data) {
-    
+
 
     try {
       // Perform any additional business logic or validation here before calling the repository method
@@ -18,6 +18,25 @@ class UserService {
       return newUser;
     } catch (error) {
       throw new Error('Failed to create user.');
+    }
+  }
+
+  async isAuthenticated(token) {
+    try {
+      const response = await this.verifyToken(token);
+      console.log(response);
+      if (!response) {
+        throw { error: 'Invalid token' }
+      }
+     
+      const user = await this.userRepository.getUserById(response.id);
+      if (!user) {
+        throw { error: 'No user with the corresponding token exists' };
+      }
+      return user.id;
+    } catch (error) {
+      console.log("Something went wrong in the auth process");
+      throw error;
     }
   }
 
@@ -31,7 +50,7 @@ class UserService {
       throw new Error('Failed to delete user.');
     }
   }
-  async  createToken(user) {
+  async createToken(user) {
     try {
       const token = jwt.sign(user, SECRET_KEY);
       return token;
@@ -40,33 +59,33 @@ class UserService {
     }
   }
 
-  async signIn(email,plainPassword){
+  async signIn(email, plainPassword) {
     try {
       // fetching the user using email 
       const user = await this.userRepository.getUserByEmail(email);
-      console.log(email,plainPassword);
+      console.log(email, plainPassword);
 
       // comparing password 
-      const isPasswordMatched = this.comparePasswords(plainPassword,user.password);
+      const isPasswordMatched = this.comparePasswords(plainPassword, user.password);
 
       // BeingRemember7! fifth email password 
-      if(!isPasswordMatched){
+      if (!isPasswordMatched) {
         console.log("incorrect passowrd");
         throw new Error("Incorrect Password");
       }
 
       // creating new Token and sending to user
-      const newJWT = this.createToken({email:user.email , id:user.id});
+      const newJWT = this.createToken({ email: user.email, id: user.id });
       return newJWT
-      
+
 
     } catch (error) {
-          console.log("Something went wrong while signin");
+      console.log("Something went wrong while signin");
       throw error;
     }
   }
-  
-  async  verifyToken(token) {
+
+  async verifyToken(token) {
     try {
       const decoded = jwt.verify(token, SECRET_KEY);
       return decoded;
@@ -74,6 +93,7 @@ class UserService {
       throw new Error(`Failed to verify token: ${error.message}`);
     }
   }
+
   comparePasswords(plainPassword, hashedPassword) {
     try {
       const match = bcrypt.compareSync(plainPassword, hashedPassword);
