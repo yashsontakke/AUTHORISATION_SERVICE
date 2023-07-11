@@ -17,8 +17,14 @@ class UserService {
       // Perform any additional operations or return relevant data as needed
       return newUser;
     } catch (error) {
-      throw new Error('Failed to create user.');
+
+      if (error.name == 'SequelizeValidationError') {
+        throw error;
+      }
+      console.log("Something went wrong in the service layer");
+      throw error;
     }
+
   }
 
   async isAuthenticated(token) {
@@ -28,7 +34,7 @@ class UserService {
       if (!response) {
         throw { error: 'Invalid token' }
       }
-     
+
       const user = await this.userRepository.getUserById(response.id);
       if (!user) {
         throw { error: 'No user with the corresponding token exists' };
@@ -103,14 +109,14 @@ class UserService {
     }
   }
 
-  async isAdmin (userId) {
+  async isAdmin(userId) {
     try {
       const user = await this.userRepository.isAdmin(userId);
-  
+
       if (!user || user.role !== 'admin') {
         return false;
       }
-  
+
       // User is an admin
       return true;
     } catch (error) {

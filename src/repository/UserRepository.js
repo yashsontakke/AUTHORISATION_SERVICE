@@ -1,16 +1,21 @@
-const { User , Role} = require('../models/index'); // Assuming you have a User model defined
+const { User, Role } = require('../models/index'); // Assuming you have a User model defined
+const ValidationError = require('../utils/validation-error');
 
 class UserRepository {
-   async createUser({email, password}){
+  async createUser({ email, password }) {
     try {
-      const user = await User.create( {email, password} );
+      const user = await User.create({ email, password });
       return user;
     } catch (error) {
-      throw new Error('Failed to create user.');
+      if (error.name == 'SequelizeValidationError') {
+        throw new ValidationError(error);
+      }
+      console.log("Something went wrong on repository layer");
+      throw error;
     }
   }
 
-   async deleteUser(userId) {
+  async deleteUser(userId) {
     try {
       const deletedUserCount = await User.destroy({ where: { id: userId } });
       return deletedUserCount;
@@ -23,7 +28,7 @@ class UserRepository {
       const user = await User.findByPk(userId, {
         attributes: ['id', 'email'], // Specify the columns you want to retrieve
       });
-  
+
       return user;
     } catch (error) {
       throw new Error(`Failed to get user by id: ${error.message}`);
@@ -32,7 +37,7 @@ class UserRepository {
   async getUserByEmail(userEmail) {
     try {
       const user = await User.findOne({
-        where:{email:userEmail}
+        where: { email: userEmail }
       });
       return user;
     } catch (error) {
@@ -41,19 +46,19 @@ class UserRepository {
   }
   async isAdmin(userId) {
     try {
-        const user = await User.findByPk(userId);
-        const adminRole = await Role.findOne({
-            where: {
-                name: 'ADMIN'
-            }
-        });
-        console.log(adminRole);
-        return user.hasRole(adminRole);
+      const user = await User.findByPk(userId);
+      const adminRole = await Role.findOne({
+        where: {
+          name: 'ADMIN'
+        }
+      });
+      console.log(adminRole);
+      return user.hasRole(adminRole);
     } catch (error) {
-        console.log("Something went wrong on repository layer");
-        throw error;
+      console.log("Something went wrong on repository layer");
+      throw error;
     }
-}
+  }
 }
 
 module.exports = UserRepository;

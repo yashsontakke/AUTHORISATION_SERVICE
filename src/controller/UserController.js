@@ -11,7 +11,12 @@ class UserController {
             res.status(201).json({ message: 'User created successfully', user: newUser });
         } catch (error) {
             // Return an error response
-            res.status(500).json({ message: 'Failed to create user', error: error.message });
+            return res.status(error.statusCode).json({
+                message: error.message,
+                data: {},
+                success: false,
+                err: error.explanation
+            });
         }
     }
 
