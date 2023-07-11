@@ -34,7 +34,7 @@ class UserController {
         try {
             const userService = new UserService();
             const token = await userService.signIn(email, password);
-            res.json({ token:token , message:"Successfully Signed in" });
+            res.json({ token: token, message: "Successfully Signed in" });
         } catch (error) {
             res.status(400).json({ error: error.message });
         }
@@ -60,6 +60,27 @@ class UserController {
             });
         }
     }
+
+
+    static isAdmin = async (req, res) => {
+        try {
+            const userId = req.body.id;
+            const userService = new UserService();
+            const isAdmin = await userService.isAdmin(userId);
+
+            if (!isAdmin) {
+                return res.status(403).json({ error: 'Unauthorized' });
+            }
+
+            // User is an admin, proceed with the controller logic
+            // ...
+        } catch (error) {
+            return res.status(500).json({ error: 'Failed to check admin status' });
+        }
+    };
+
+
+
 
 }
 

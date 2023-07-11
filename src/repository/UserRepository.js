@@ -1,4 +1,4 @@
-const { User } = require('../models/index'); // Assuming you have a User model defined
+const { User , Role} = require('../models/index'); // Assuming you have a User model defined
 
 class UserRepository {
    async createUser({email, password}){
@@ -39,6 +39,21 @@ class UserRepository {
       throw new Error(`Failed to get user by emailId: ${error.message}`);
     }
   }
+  async isAdmin(userId) {
+    try {
+        const user = await User.findByPk(userId);
+        const adminRole = await Role.findOne({
+            where: {
+                name: 'ADMIN'
+            }
+        });
+        console.log(adminRole);
+        return user.hasRole(adminRole);
+    } catch (error) {
+        console.log("Something went wrong on repository layer");
+        throw error;
+    }
+}
 }
 
 module.exports = UserRepository;

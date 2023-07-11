@@ -102,6 +102,21 @@ class UserService {
       throw new Error(`Failed to compare passwords: ${error.message}`);
     }
   }
+
+  async isAdmin (userId) {
+    try {
+      const user = await this.userRepository.isAdmin(userId);
+  
+      if (!user || user.role !== 'admin') {
+        return false;
+      }
+  
+      // User is an admin
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  };
 }
 
 module.exports = UserService;
